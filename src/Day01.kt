@@ -1,17 +1,34 @@
+import org.assertj.core.api.Assertions.assertThat
+
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.size
-    }
+  fun part1(input: List<String>): Int {
+    println("Input size: ${input.size}")
+    val pairs = input.map { it.toInt() }.zipWithNext()
+    println("Pairs size: ${pairs.size}")
 
-    fun part2(input: List<String>): Int {
-        return input.size
-    }
+    return pairs.count { it.second > it.first }
+  }
 
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
+  fun part2(input: List<String>): Int {
+    val sumsOfTriples = input
+      .map { it.toInt() }
+      .windowed(3)
+      .map { it.sum() }
+    val pairsOfSums = sumsOfTriples.zipWithNext()
 
-    val input = readInput("Day01")
-    println(part1(input))
-    println(part2(input))
+    println("Pairs of triple sums size: ${pairsOfSums.size}")
+
+    return pairsOfSums.count { it.second > it.first }
+  }
+
+  val testInput = readInput("day1_test")
+  val testResult = runSolution("Part1 test") { part1(testInput) }
+
+  assertThat(testResult).isEqualTo(7)
+
+  val input = readInput("day1_input")
+
+  runSolution("Part1") { part1(input) }
+
+  runSolution("Part2") { part2(input) }
 }

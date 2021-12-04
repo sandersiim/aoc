@@ -1,4 +1,6 @@
 .gradle
 .idea
 build
-src/**/*.txt
+src/inputs
+
+.DS_Store

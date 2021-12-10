@@ -5,33 +5,33 @@ fun main() {
     return input.map { it.toCharArray().map { c -> c.digitToInt() } }
   }
 
-  fun <T : Any>HeightMap.mapCoordsNotNull(op: (Pair<Int, Int>) -> T?): List<T> {
+  fun <T : Any>HeightMap.mapCoordsNotNull(op: (Coords) -> T?): List<T> {
     return this.indices.flatMap { row ->
       this[0].indices.mapNotNull { col ->
-        op(Pair(row, col))
+        op(Coords(row, col))
       }
     }
   }
 
-  fun HeightMap.get(coords: Pair<Int, Int>) = this[coords.first][coords.second]
+  fun HeightMap.get(coords: Coords) = this[coords.first][coords.second]
 
-  fun HeightMap.neighboursOf(coords: Pair<Int, Int>): List<Pair<Int, Int>> {
+  fun HeightMap.neighboursOf(coords: Coords): List<Coords> {
     return listOf(
-      Pair(coords.first - 1, coords.second),
-      Pair(coords.first, coords.second - 1),
-      Pair(coords.first + 1, coords.second),
-      Pair(coords.first, coords.second + 1),
+      Coords(coords.first - 1, coords.second),
+      Coords(coords.first, coords.second - 1),
+      Coords(coords.first + 1, coords.second),
+      Coords(coords.first, coords.second + 1),
     )
       .filter { (row, col) -> row >= 0 && col >= 0 && row < this.size && col < this[0].size }
   }
 
-  fun HeightMap.isLowPoint(coords: Pair<Int, Int>): Boolean {
+  fun HeightMap.isLowPoint(coords: Coords): Boolean {
     val valueAtCoords = get(coords)
     return neighboursOf(coords).map { get(it) }.all { it > valueAtCoords }
   }
 
-  fun HeightMap.getBasin(coords: Pair<Int, Int>): List<Pair<Int, Int>> {
-    fun getBasinInner(nextCoords: Pair<Int, Int>): List<Pair<Int, Int>> {
+  fun HeightMap.getBasin(coords: Coords): List<Coords> {
+    fun getBasinInner(nextCoords: Coords): List<Coords> {
       val basinValuesRange = (get(nextCoords) + 1)..8
       return listOf(nextCoords) + neighboursOf(nextCoords)
         .filter { get(it) in basinValuesRange }
@@ -82,3 +82,4 @@ fun main() {
 }
 
 typealias HeightMap = List<List<Int>>
+typealias Coords = Pair<Int, Int>

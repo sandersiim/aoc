@@ -13,14 +13,14 @@ fun main() {
     }
   }
 
-  fun HeightMap.get(coords: Coords) = this[coords.first][coords.second]
+  fun HeightMap.get(coords: Coords) = this[coords.row][coords.col]
 
   fun HeightMap.neighboursOf(coords: Coords): List<Coords> {
     return listOf(
-      Coords(coords.first - 1, coords.second),
-      Coords(coords.first, coords.second - 1),
-      Coords(coords.first + 1, coords.second),
-      Coords(coords.first, coords.second + 1),
+      Coords(coords.row - 1, coords.col),
+      Coords(coords.row, coords.col - 1),
+      Coords(coords.row + 1, coords.col),
+      Coords(coords.row, coords.col + 1),
     )
       .filter { (row, col) -> row >= 0 && col >= 0 && row < this.size && col < this[0].size }
   }
@@ -82,4 +82,3 @@ fun main() {
 }
 
 typealias HeightMap = List<List<Int>>
-typealias Coords = Pair<Int, Int>

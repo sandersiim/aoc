@@ -1,9 +1,9 @@
 import org.assertj.core.api.Assertions.assertThat
 
 fun main() {
-  fun OctopusMap.get(coords: Coords) = this[coords.first][coords.second]
+  fun OctopusMap.get(coords: Coords) = this[coords.row][coords.col]
   fun OctopusMap.set(coords: Coords, value: Int) {
-    this[coords.first][coords.second] = value
+    this[coords.row][coords.col] = value
   }
   fun OctopusMap.print() {
     forEach { println(it.contentToString()) }
@@ -43,7 +43,7 @@ fun main() {
       }
     }
       .filter { (row, col) ->
-        (row != coords.first || col != coords.second) &&
+        (row != coords.row || col != coords.col) &&
           row >= 0 && col >= 0 &&
             row < this.size && col < this[0].size
       }

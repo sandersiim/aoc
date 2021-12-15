@@ -6,14 +6,6 @@ import readInput
 import runSolution
 
 fun main() {
-  data class Node(
-    val coords: Coords,
-    val risk: Int
-  ) : DijkstraNode<Coords> {
-    override var visited: Boolean = false
-    override val id get() = coords
-  }
-
   fun parseInput(input: List<String>): List<List<Int>> {
     return input.map { line ->
       line.split("").mapNotNull { it.toIntOrNull() }
@@ -27,15 +19,14 @@ fun main() {
     parsedInput.indices.forEach { row ->
       parsedInput[row].indices.forEach { col ->
         val currentCoords = Coords(row, col)
-        val currentNode = Node(currentCoords, parsedInput[row][col])
         if (col < parsedInput[row].size - 1) {
-          val newNode = Node(currentCoords.copy(col = col + 1), parsedInput[row][col + 1])
-          graph.addEdge(currentNode, newNode, newNode.risk)
+          val newNode = currentCoords.copy(col = col + 1)
+          graph.addEdge(currentCoords, newNode, parsedInput[row][col + 1])
         }
 
         if (row < parsedInput.size - 1) {
-          val newNode = Node(currentCoords.copy(row = row + 1), parsedInput[row + 1][col])
-          graph.addEdge(currentNode, newNode, newNode.risk)
+          val newNode = currentCoords.copy(row = row + 1)
+          graph.addEdge(currentCoords, newNode, parsedInput[row + 1][col])
         }
       }
     }
@@ -64,23 +55,22 @@ fun main() {
     (0..maxRow).forEach { row ->
       (0..maxCol).forEach { col ->
         val currentCoords = Coords(row, col)
-        val currentNode = Node(currentCoords, nodeWeight(row, col))
         if (col > 0) {
-          val newNode = Node(currentCoords.copy(col = col - 1), nodeWeight(row, col - 1))
-          graph.addEdge(currentNode, newNode, newNode.risk)
+          val newNode = currentCoords.copy(col = col - 1)
+          graph.addEdge(currentCoords, newNode, nodeWeight(row, col - 1))
         }
         if (col < maxCol) {
-          val newNode = Node(currentCoords.copy(col = col + 1), nodeWeight(row, col + 1))
-          graph.addEdge(currentNode, newNode, newNode.risk)
+          val newNode = currentCoords.copy(col = col + 1)
+          graph.addEdge(currentCoords, newNode, nodeWeight(row, col + 1))
         }
 
         if (row > 0) {
-          val newNode = Node(currentCoords.copy(row = row - 1), nodeWeight(row - 1, col))
-          graph.addEdge(currentNode, newNode, newNode.risk)
+          val newNode = currentCoords.copy(row = row - 1)
+          graph.addEdge(currentCoords, newNode, nodeWeight(row - 1, col))
         }
         if (row < maxRow) {
-          val newNode = Node(currentCoords.copy(row = row + 1), nodeWeight(row + 1, col))
-          graph.addEdge(currentNode, newNode, newNode.risk)
+          val newNode = currentCoords.copy(row = row + 1)
+          graph.addEdge(currentCoords, newNode, nodeWeight(row + 1, col))
         }
       }
     }

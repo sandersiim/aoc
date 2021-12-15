@@ -4,7 +4,6 @@ import Coords
 import org.assertj.core.api.Assertions.assertThat
 import readInput
 import runSolution
-import java.util.PriorityQueue
 
 fun main() {
   data class Node(
@@ -25,14 +24,9 @@ fun main() {
     val parsedInput = parseInput(input)
     val graph = DijkstraGraph<Coords>()
 
-    val distances = mutableMapOf(Coords(0, 0) to 0)
-    val compareByDistance: Comparator<Coords> = compareBy { distances.getOrDefault(it, Int.MAX_VALUE) }
-    val unvisitedNodes = PriorityQueue(compareByDistance)
-
     parsedInput.indices.forEach { row ->
       parsedInput[row].indices.forEach { col ->
         val currentCoords = Coords(row, col)
-        unvisitedNodes.add(currentCoords)
         val currentNode = Node(currentCoords, parsedInput[row][col])
         if (col < parsedInput[row].size - 1) {
           val newNode = Node(currentCoords.copy(col = col + 1), parsedInput[row][col + 1])
@@ -46,37 +40,16 @@ fun main() {
       }
     }
 
-    var currentNodeId = unvisitedNodes.poll()
-    val endNodeId = Coords(parsedInput.size - 1, parsedInput[0].size - 1)
+    val endNodeId = Coords(parsedInput.size - 1, parsedInput.size - 1)
+    println(endNodeId)
 
-    while (true) {
-      if (currentNodeId == endNodeId) {
-        break
-      }
-      graph.getNeighbors(currentNodeId).forEach { (neighbor, weight) ->
-        if (!neighbor.visited) {
-          val newDist = distances[currentNodeId]!! + weight
-          if (newDist < distances.getOrDefault(neighbor.id, Int.MAX_VALUE)) {
-            distances[neighbor.id] = newDist
-            unvisitedNodes.remove(neighbor.id)
-            unvisitedNodes.add(neighbor.id)
-          }
-        }
-      }
-      graph.getNode(currentNodeId).visited = true
-      currentNodeId = unvisitedNodes.poll()
-    }
-
-    return distances[endNodeId]!!
+    return graph.shortestPath(Coords(0, 0), endNodeId)
   }
 
   fun part2(input: List<String>): Int {
     val parsedInput = parseInput(input)
     val graph = DijkstraGraph<Coords>()
 
-    val distances = mutableMapOf(Coords(0, 0) to 0)
-    val compareByDistance: Comparator<Coords> = compareBy { distances.getOrDefault(it, Int.MAX_VALUE) }
-    val unvisitedNodes = PriorityQueue(compareByDistance)
     val boardSize = parsedInput.size
     val maxRow = boardSize * 5 - 1
     val maxCol = boardSize * 5 - 1
@@ -91,7 +64,6 @@ fun main() {
     (0..maxRow).forEach { row ->
       (0..maxCol).forEach { col ->
         val currentCoords = Coords(row, col)
-        unvisitedNodes.add(currentCoords)
         val currentNode = Node(currentCoords, nodeWeight(row, col))
         if (col > 0) {
           val newNode = Node(currentCoords.copy(col = col - 1), nodeWeight(row, col - 1))
@@ -113,29 +85,10 @@ fun main() {
       }
     }
 
-    var currentNodeId = unvisitedNodes.poll()
     val endNodeId = Coords(maxRow, maxCol)
     println(endNodeId)
 
-    while (currentNodeId != null) {
-      if (currentNodeId == endNodeId) {
-        break
-      }
-      graph.getNeighbors(currentNodeId).forEach { (neighbor, weight) ->
-        if (!neighbor.visited) {
-          val newDist = distances[currentNodeId]!! + weight
-          if (newDist < distances.getOrDefault(neighbor.id, Int.MAX_VALUE)) {
-            distances[neighbor.id] = newDist
-            unvisitedNodes.remove(neighbor.id)
-            unvisitedNodes.add(neighbor.id)
-          }
-        }
-      }
-      graph.getNode(currentNodeId).visited = true
-      currentNodeId = unvisitedNodes.poll()
-    }
-
-    return distances[endNodeId]!!
+    return graph.shortestPath(Coords(0, 0), endNodeId)
   }
 
   val testInput = readInput("day15_test")

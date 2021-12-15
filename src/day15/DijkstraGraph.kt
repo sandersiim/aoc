@@ -1,5 +1,7 @@
 package day15
 
+import java.util.PriorityQueue
+
 interface DijkstraNode<T> {
   var visited: Boolean
   val id: T
@@ -29,6 +31,35 @@ class DijkstraGraph<T> {
       throw Error("Unkown vertex $id")
     }
     return adjacencyList[nodes[id]!!] ?: emptyList()
+  }
+
+  fun shortestPath(from: T, to: T): Int {
+    val distances = mutableMapOf(from to 0)
+    val compareByDistance: Comparator<T> = compareBy { distances.getOrDefault(it, Int.MAX_VALUE) }
+    val unvisitedNodes = PriorityQueue(compareByDistance)
+    nodes.keys.forEach { unvisitedNodes.add(it) }
+
+    var currentNodeId = unvisitedNodes.poll()
+
+    while (currentNodeId != null) {
+      if (currentNodeId == to) {
+        break
+      }
+      getNeighbors(currentNodeId).forEach { (neighbor, weight) ->
+        if (!neighbor.visited) {
+          val newDist = distances[currentNodeId]!! + weight
+          if (newDist < distances.getOrDefault(neighbor.id, Int.MAX_VALUE)) {
+            distances[neighbor.id] = newDist
+            unvisitedNodes.remove(neighbor.id)
+            unvisitedNodes.add(neighbor.id)
+          }
+        }
+      }
+      getNode(currentNodeId).visited = true
+      currentNodeId = unvisitedNodes.poll()
+    }
+
+    return distances[to]!!
   }
 
   override fun toString(): String {

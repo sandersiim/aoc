@@ -1,5 +1,10 @@
 package ds
 
+import (
+	"cmp"
+	"slices"
+)
+
 func Any[T any](a []T, f func(x T) bool) bool {
 	for _, v := range a {
 		if f(v) {
@@ -89,4 +94,10 @@ func SumIntByIndex[T any](a []T, f func(x T, i int) int) int {
 		result += f(v, i)
 	}
 	return result
+}
+
+func MinBy[T any, C cmp.Ordered](arr []T, comparableGetter func(arrElem T) C) T {
+	return slices.MinFunc(arr, func(a T, b T) int {
+		return cmp.Compare(comparableGetter(a), comparableGetter(b))
+	})
 }

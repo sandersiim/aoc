@@ -12,3 +12,9 @@ func MapMaxValue[K comparable, E cmp.Ordered](m map[K]E) E {
 
 	return mx
 }
+
+func ForEachKey[K comparable, E any](m map[K]E, f func(k K)) {
+	for k := range m {
+		f(k)
+	}
+}

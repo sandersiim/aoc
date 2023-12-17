@@ -18,3 +18,9 @@ func ForEachKey[K comparable, E any](m map[K]E, f func(k K)) {
 		f(k)
 	}
 }
+
+func ForEachEntry[K comparable, E any](m map[K]E, f func(k K, v E)) {
+	for k, v := range m {
+		f(k, v)
+	}
+}

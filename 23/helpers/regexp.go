@@ -8,6 +8,7 @@ import (
 
 var SingleDigitRegexp = regexp.MustCompile("[0-9]")
 var DigitsRegexp = regexp.MustCompile("[0-9]+")
+var IntRegexp = regexp.MustCompile("-?[0-9]+")
 
 func ParseInt(s string) int {
 	i, err := strconv.Atoi(s)
@@ -16,7 +17,7 @@ func ParseInt(s string) int {
 }
 
 func ParseInts(s string) []int {
-	return ds.Map(DigitsRegexp.FindAllString(s, -1), func(s string) int {
+	return ds.Map(IntRegexp.FindAllString(s, -1), func(s string) int {
 		i, err := strconv.Atoi(s)
 		Fatality(err)
 		return i

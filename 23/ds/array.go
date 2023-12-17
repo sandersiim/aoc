@@ -23,6 +23,15 @@ func All[T any](a []T, f func(x T) bool) bool {
 	return true
 }
 
+func AllEqual[T comparable](a []T) bool {
+	for _, v := range a {
+		if v != a[0] {
+			return false
+		}
+	}
+	return true
+}
+
 func Map[T any, R any](a []T, mapper func(x T) R) []R {
 	result := make([]R, len(a))
 	for i, v := range a {

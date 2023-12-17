@@ -9,6 +9,7 @@ type AocProblem[T comparable] struct {
 	P1Solver      func(string) T
 	P2Solver      func(string) T
 	Part2Input    string
+	SkipMain      bool
 }
 
 func (p AocProblem[T]) Solve() {
@@ -19,7 +20,9 @@ func (p AocProblem[T]) Solve() {
 		} else {
 			fmt.Println("Part1 Test Result:", part1TestRes)
 		}
-		fmt.Println("Part1 Result:", p.P1Solver(p.inputFile()))
+		if !p.SkipMain {
+			fmt.Println("Part1 Result:", p.P1Solver(p.inputFile()))
+		}
 	}
 	fmt.Println()
 	if p.P2Solver != nil {
@@ -33,7 +36,9 @@ func (p AocProblem[T]) Solve() {
 		if p.Part2Input != "" {
 			inputFile = p.Part2Input
 		}
-		fmt.Println("Part2 Result:", p.P2Solver(inputFile))
+		if !p.SkipMain {
+			fmt.Println("Part2 Result:", p.P2Solver(inputFile))
+		}
 	}
 }
 

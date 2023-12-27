@@ -3,6 +3,7 @@ package helpers
 import (
 	"fmt"
 	"log"
+	"sander/aoc23/ds"
 )
 
 type Coords struct {
@@ -49,6 +50,12 @@ func (c Coords) AdjacentNeighbours() []Coords {
 	}
 }
 
+func (c Coords) AdjacentNeighboursWithBounds(boundsX int, boundsY int) []Coords {
+	return ds.Filter(c.AdjacentNeighbours(), func(c Coords) bool {
+		return !c.OutOfBounds(boundsX, boundsY)
+	})
+}
+
 func (c Coords) AllNeighbours() []Coords {
 	return []Coords{
 		{X: c.X, Y: c.Y - 1},
@@ -83,8 +90,4 @@ func (d Direction) String() string {
 	default:
 		panic(fmt.Sprintf("unknown direction: %v", uint8(d)))
 	}
-}
-
-func CoordsHash(c Coords) string {
-	return c.String()
 }

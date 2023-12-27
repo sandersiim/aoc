@@ -23,6 +23,14 @@ func (s Set[Key]) Add(values ...Key) {
 	}
 }
 
+func (s Set[Key]) AddAll(sets ...Set[Key]) {
+	for _, otherSet := range sets {
+		for otherElem := range otherSet {
+			s[otherElem] = struct{}{}
+		}
+	}
+}
+
 func (s Set[Key]) Has(value Key) bool {
 	_, ok := s[value]
 	return ok

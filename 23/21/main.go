@@ -13,10 +13,9 @@ func main() {
 		Test1Expected: 16,
 		Test2Expected: 167004,
 		Test1Solver:   test1,
-		Test2Solver:   test2,
 		P1Solver:      part1,
 		P2Solver:      part2,
-		SkipMain:      false,
+		SkipTest2:     true,
 	}
 	p.Solve()
 }
@@ -75,45 +74,13 @@ func part1(filename string) int {
 	return solve(tileMap, 64)
 }
 
-func test2(filename string) int {
-	tileMap := parseInputs(filename)
-	return solve(tileMap, 500)
-}
-
 func part2(filename string) int {
 	tileMap := parseInputs(filename)
-	return solve(tileMap, 26501365)
-}
-
-type CoordsWithDistance struct {
-	coords   helpers.Coords
-	distance int
+	return solve2(tileMap)
 }
 
 func solve(tileMap TilesMap, steps int) int {
-	distancesMap := make(map[helpers.Coords]int)
-	startCoords := findStart(tileMap)
-	distancesMap[startCoords] = 0
-	coordsQueue := ds.NewPriorityQueue[helpers.Coords]()
-	ds.ForEach(tileMap.AllEmptyCoords(), func(emptyCoords helpers.Coords) {
-		if emptyCoords != startCoords {
-			distancesMap[emptyCoords] = math.MaxInt - 1
-		}
-		coordsQueue.Push(emptyCoords, float64(distancesMap[emptyCoords]))
-	})
-	for coordsQueue.Len() > 0 {
-		next, e := coordsQueue.Pop()
-		helpers.Fatality(e)
-		d := distancesMap[next]
-		emptyAdjacents := tileMap.EmptyAdjacents(next)
-		for emptyAdjacent := range emptyAdjacents {
-			if d+1 < distancesMap[emptyAdjacent] {
-				distancesMap[emptyAdjacent] = d + 1
-				coordsQueue.UpdatePriority(emptyAdjacent, float64(d+1))
-			}
-		}
-	}
-
+	distancesMap := findDistances(tileMap)
 	targetDistanceParity := steps % 2
 
 	result := 0
@@ -132,6 +99,69 @@ func solve(tileMap TilesMap, steps int) int {
 		fmt.Println(rowStr)
 	}
 	return result
+}
+
+// This only works when the "diamond of reachable step tiles" reaches exactly to edge of an "odd block" (starting block or 2 blocks away from starting, etc),
+// which is the case for the part2 input
+func solve2(tileMap TilesMap) int {
+	distancesMap := findDistances(tileMap)
+	evenDistanceTilesInOneBlock := ds.CountValues(distancesMap, func(d int) bool {
+		return d%2 == 0
+	})
+	oddDistanceTilesInOneBlock := ds.CountValues(distancesMap, func(d int) bool {
+		return d%2 == 1
+	})
+	totalBlocksRadius := (26501365 - 65) / 131
+	oddBlocks := (totalBlocksRadius + 1) * (totalBlocksRadius + 1)
+	evenBlocks := totalBlocksRadius * totalBlocksRadius
+
+	fullBlockTiles := evenDistanceTilesInOneBlock*evenBlocks + oddDistanceTilesInOneBlock*oddBlocks
+
+	oddBlocksOfCornersToRemove := totalBlocksRadius + 1
+	oddDistanceTilesInBlockCorners := ds.CountValues(distancesMap, func(d int) bool {
+		return d%2 == 1 && d > 65
+	})
+	evenBlocksOfCornersToAdd := totalBlocksRadius
+	evenDistanceTilesInBlockCorners := ds.CountValues(distancesMap, func(d int) bool {
+		return d%2 == 0 && d > 65
+	})
+
+	return fullBlockTiles - oddBlocksOfCornersToRemove*oddDistanceTilesInBlockCorners + evenBlocksOfCornersToAdd*evenDistanceTilesInBlockCorners
+}
+
+func findDistances(tileMap TilesMap) map[helpers.Coords]int {
+	distancesMap := make(map[helpers.Coords]int)
+	startCoords := findStart(tileMap)
+	distancesMap[startCoords] = 0
+	coordsQueue := ds.NewPriorityQueue[helpers.Coords]()
+	coordsQueue.Push(startCoords, 0)
+	ds.ForEach(tileMap.AllEmptyCoords(), func(emptyCoords helpers.Coords) {
+		if emptyCoords != startCoords {
+			coordsQueue.Push(emptyCoords, math.MaxInt-1)
+		}
+	})
+	for coordsQueue.Len() > 0 {
+		next, e := coordsQueue.Pop()
+		helpers.Fatality(e)
+		d, ok := distancesMap[next]
+		if !ok {
+			d = math.MaxInt - 1
+		}
+		newDist := d + 1
+		emptyAdjacents := tileMap.EmptyAdjacents(next)
+		for emptyAdjacent := range emptyAdjacents {
+			currentDist, ok2 := distancesMap[emptyAdjacent]
+			if !ok2 {
+				currentDist = math.MaxInt - 1
+			}
+			if newDist < currentDist {
+				distancesMap[emptyAdjacent] = newDist
+				coordsQueue.UpdatePriority(emptyAdjacent, float64(newDist))
+			}
+		}
+	}
+
+	return distancesMap
 }
 
 func findStart(tileMap [][]TileWithCoords) helpers.Coords {

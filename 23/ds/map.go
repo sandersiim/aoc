@@ -24,3 +24,13 @@ func ForEachEntry[K comparable, E any](m map[K]E, f func(k K, v E)) {
 		f(k, v)
 	}
 }
+
+func CountValues[K comparable, E any](m map[K]E, predicate func(v E) bool) int {
+	result := 0
+	for _, v := range m {
+		if predicate(v) {
+			result++
+		}
+	}
+	return result
+}
